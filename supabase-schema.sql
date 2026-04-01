@@ -153,6 +153,11 @@ create policy "subscriptions_select_own_or_admin"
 on public.subscriptions for select
 using (auth.uid() = user_id or public.is_admin());
 
+drop policy if exists "subscriptions_public_read" on public.subscriptions;
+create policy "subscriptions_public_read"
+on public.subscriptions for select
+using (true);
+
 drop policy if exists "subscriptions_insert_own_or_admin" on public.subscriptions;
 create policy "subscriptions_insert_own_or_admin"
 on public.subscriptions for insert

@@ -62,6 +62,8 @@ const els = {
   charityHighlights: document.getElementById("charityHighlights"),
   prizeBreakdown: document.getElementById("prizeBreakdown"),
   drawForm: document.getElementById("drawForm"),
+  drawTargetLabel: document.getElementById("drawTargetLabel"),
+  drawTargetInput: document.getElementById("drawTargetInput"),
   drawResults: document.getElementById("drawResults"),
   winnerTable: document.getElementById("winnerTable"),
   userTable: document.getElementById("userTable"),
@@ -110,6 +112,7 @@ function bindEvents() {
   els.subscriptionForm?.addEventListener("submit", handleSubscriptionSubmit);
   els.scoreForm?.addEventListener("submit", handleScoreSubmit);
   els.drawForm?.addEventListener("submit", handleDrawSubmit);
+  els.drawForm?.mode?.addEventListener("change", updateDrawModeUI);
   els.dashboardUserSelect?.addEventListener("change", renderSubscriberDashboard);
   els.userTable?.addEventListener("click", handleUserTableClick);
   els.winnerTable?.addEventListener("click", handleWinnerTableClick);
@@ -139,6 +142,12 @@ function createInitialState() {
     authGateDismissed: false,
     hideSignup: false,
     jackpotCarryOver: 0,
+    metrics: {
+      totalSubscribers: 0,
+      activeSubscribers: 0,
+      totalRevenue: 0,
+      charityTotal: 0,
+    },
     charities: [...defaultCharities],
     users: [],
     scores: [],
@@ -296,11 +305,18 @@ async function loadAppData() {
     state.scores = [];
     state.draws = [];
     state.jackpotCarryOver = 0;
+    state.metrics = {
+      totalSubscribers: 0,
+      activeSubscribers: 0,
+      totalRevenue: 0,
+      charityTotal: 0,
+    };
     return;
   }
 
   const charities = await fetchCharities();
   const draws = await fetchDraws();
+  const allSubscriptions = await fetchSubscriptions();
   let profiles = [];
   let subscriptions = [];
   let scores = [];
@@ -323,6 +339,7 @@ async function loadAppData() {
   state.scores = normalizeScores(scores);
   state.draws = normalizeDraws(draws, winners, state.users);
   state.jackpotCarryOver = state.draws.at(-1)?.jackpotCarryOver ?? 0;
+  state.metrics = calculateMetrics(allSubscriptions);
 
   if (!state.users.length && state.session?.role === "subscriber" && state.session?.userId) {
     state.users = [createProfileOnlyUser()];
@@ -517,18 +534,38 @@ function createProfileOnlyUser() {
     status: "inactive",
   };
 }
+
+function calculateMetrics(subscriptions) {
+  const normalized = subscriptions.map((subscription) => ({
+    status: subscription.status || "inactive",
+    fee: Number(subscription.fee || 0),
+    contributionPercent: Number(subscription.contribution_percent || 10),
+  }));
+
+  return {
+    totalSubscribers: normalized.length,
+    activeSubscribers: normalized.filter((subscription) => subscription.status === "active").length,
+    totalRevenue: normalized.reduce((sum, subscription) => sum + subscription.fee, 0),
+    charityTotal: normalized.reduce(
+      (sum, subscription) => sum + Math.round(subscription.fee * (subscription.contributionPercent / 100)),
+      0
+    ),
+  };
+}
+
 function renderHeaderStats() {
-  const activeUsers = getActiveUsers();
-  const totalRevenue = state.users.reduce((sum, user) => sum + user.fee, 0);
-  const charityTotal = calculateCharityTotal();
+  const activeUsers = state.metrics?.activeSubscribers ?? 0;
+  const totalSubscribers = state.metrics?.totalSubscribers ?? 0;
+  const totalRevenue = state.metrics?.totalRevenue ?? 0;
+  const charityTotal = state.metrics?.charityTotal ?? 0;
   const nextDraw = getNextDrawDate();
   const latestDraw = state.draws.at(-1);
 
   els.headlineStats.innerHTML = `
     <div class="metric-card">
       <span class="mini-pill">Active Subscribers</span>
-      <strong>${activeUsers.length}</strong>
-      <p>Live eligible members participating in the draw pool.</p>
+      <strong>${activeUsers}</strong>
+      <p>${totalSubscribers} total subscribers tracked across the platform.</p>
     </div>
     <div class="metric-card">
       <span class="mini-pill">Revenue</span>
@@ -701,8 +738,28 @@ function hydrateDrawForm() {
     els.drawForm.label.value = `${date.toLocaleString("en-US", { month: "long" })} ${date.getFullYear()} draw`;
   }
 
-  if (!els.drawForm.winningNumbers.value) {
-    els.drawForm.winningNumbers.value = "3,7,12,18,24";
+  updateDrawModeUI();
+}
+
+function updateDrawModeUI() {
+  if (!els.drawForm || !els.drawTargetInput || !els.drawTargetLabel) return;
+  const mode = els.drawForm.mode?.value || "weighted";
+
+  if (mode === "random") {
+    els.drawTargetLabel.textContent = "Random draw";
+    els.drawTargetInput.value = "";
+    els.drawTargetInput.placeholder = "Random winner will be selected automatically";
+    els.drawTargetInput.required = false;
+    els.drawTargetInput.disabled = true;
+    return;
+  }
+
+  els.drawTargetLabel.textContent = "Target golf score";
+  els.drawTargetInput.disabled = false;
+  els.drawTargetInput.required = true;
+  els.drawTargetInput.placeholder = "36";
+  if (!els.drawTargetInput.value) {
+    els.drawTargetInput.value = "36";
   }
 }
 
@@ -715,6 +772,9 @@ function renderDrawResults() {
   }
 
   const winners = latestDraw.results.filter((result) => result.matches >= 3);
+  const drawDescriptor = latestDraw.mode === "weighted"
+    ? `Target golf score: ${latestDraw.winningNumbers?.[0] ?? "--"}`
+    : "Random winner selection";
   els.drawResults.innerHTML = `
     <article class="result-card">
       <div class="status-row">
@@ -722,6 +782,7 @@ function renderDrawResults() {
         <span class="mini-pill">${titleCase(latestDraw.mode)} mode</span>
       </div>
       <div class="balls">${latestDraw.winningNumbers.map((number) => `<span class="ball">${number}</span>`).join("")}</div>
+      <p>${drawDescriptor}</p>
       <p>${winners.length} winners qualified for payout across all tiers.</p>
     </article>
     ${winners.map((winner) => `
@@ -1124,8 +1185,11 @@ async function handleScoreSubmit(event) {
       showToast("Score saved. Only the last 5 scores are retained automatically.");
       return;
     } catch (error) {
-      updateAuthMessage(error.message || "Golf score save failed.");
-      showToast(error.message || "Golf score save failed.");
+      const message = /scores_score_check|check constraint|violates check constraint/i.test(String(error.message || ""))
+        ? "Golf score save failed because Supabase still has the old score rule. Re-run the latest schema SQL."
+        : (error.message || "Golf score save failed.");
+      updateAuthMessage(message);
+      showToast(message);
       return;
     }
   }
@@ -1172,24 +1236,25 @@ async function handleDrawSubmit(event) {
   event.preventDefault();
   const form = event.currentTarget;
   const formData = new FormData(form);
-  const winningNumbers = parseNumbers(formData.get("winningNumbers"));
+  const mode = formData.get("mode");
+  const targetScore = mode === "weighted" ? Number(formData.get("winningNumbers")) : null;
 
-  if (!winningNumbers) {
-    showToast("Winning numbers must include 5 unique values between 1 and 25.");
+  if (mode === "weighted" && (!Number.isInteger(targetScore) || targetScore < 1 || targetScore > 45)) {
+    showToast("Weighted draw needs one target golf score between 1 and 45.");
     return;
   }
 
   const payload = {
-    mode: formData.get("mode"),
+    mode,
     label: formData.get("label").trim(),
-    winningNumbers,
+    winningNumbers: mode === "weighted" ? [targetScore] : [],
     date: formData.get("date"),
   };
 
   if (supabaseClient && state.session?.role === "admin") {
     try {
       const outcome = buildDrawOutcome(payload);
-      const { data: drawRow, error: drawError } = await supabaseClient
+      let drawResponse = await supabaseClient
         .from("draws")
         .insert({
           label: outcome.label,
@@ -1201,10 +1266,29 @@ async function handleDrawSubmit(event) {
         })
         .select("id")
         .single();
-      if (drawError) throw drawError;
+
+      if (
+        drawResponse.error
+        && /jackpot_carry_over|schema cache|column/i.test(String(drawResponse.error.message || ""))
+      ) {
+        drawResponse = await supabaseClient
+          .from("draws")
+          .insert({
+            label: outcome.label,
+            mode: outcome.mode,
+            winning_numbers: outcome.winningNumbers,
+            prize_pool: outcome.prizePool,
+            draw_date: outcome.date,
+          })
+          .select("id")
+          .single();
+      }
+
+      if (drawResponse.error) throw drawResponse.error;
+      const drawRow = drawResponse.data;
 
       if (outcome.results.length) {
-        const { error: winnerError } = await supabaseClient
+        let winnerResponse = await supabaseClient
           .from("winner_verifications")
           .insert(outcome.results.map((result) => ({
             draw_id: drawRow.id,
@@ -1217,7 +1301,24 @@ async function handleDrawSubmit(event) {
             verification_status: result.verificationStatus,
             payment_status: result.paymentStatus,
           })));
-        if (winnerError) throw winnerError;
+
+        if (
+          winnerResponse.error
+          && /base_matches|weighted_boost|score_weight|schema cache|column/i.test(String(winnerResponse.error.message || ""))
+        ) {
+          winnerResponse = await supabaseClient
+            .from("winner_verifications")
+            .insert(outcome.results.map((result) => ({
+              draw_id: drawRow.id,
+              user_id: result.userId,
+              matches: result.matches,
+              payout: result.payout,
+              verification_status: result.verificationStatus,
+              payment_status: result.paymentStatus,
+            })));
+        }
+
+        if (winnerResponse.error) throw winnerResponse.error;
       }
 
       await loadAppData();
@@ -1227,8 +1328,11 @@ async function handleDrawSubmit(event) {
       showToast(`Draw published with ${outcome.results.filter((entry) => entry.matches >= 3).length} qualifying winners.`);
       return;
     } catch (error) {
-      updateAuthMessage(error.message || "Draw publish failed.");
-      showToast(error.message || "Draw publish failed.");
+      const message = /schema cache|column/i.test(String(error.message || ""))
+        ? "Draw publish failed because Supabase schema is still old. Run the latest schema SQL and refresh."
+        : (error.message || "Draw publish failed.");
+      updateAuthMessage(message);
+      showToast(message);
       return;
     }
   }
@@ -1264,21 +1368,72 @@ function runDraw({ mode, label, winningNumbers, date }, notify) {
 function buildDrawOutcome({ mode, label, winningNumbers, date }) {
   const prizePool = calculatePrizePool();
   const activeUsers = getActiveUsers();
-  const scoreWeights = buildWeightedUserPool(activeUsers, mode);
   let nextJackpotCarryOver = state.jackpotCarryOver;
+  const targetScore = Number(winningNumbers?.[0] || 0);
+
+  if (!activeUsers.length) {
+    return {
+      label,
+      mode,
+      winningNumbers,
+      date,
+      prizePool,
+      jackpotCarryOver: nextJackpotCarryOver,
+      results: [],
+    };
+  }
+
+  if (mode === "random") {
+    const winnerIndex = Math.floor(Math.random() * activeUsers.length);
+    const winnerId = activeUsers[winnerIndex]?.id;
+    const results = activeUsers.map((user) => ({
+      id: crypto.randomUUID(),
+      userId: user.id,
+      userName: user.name,
+      baseMatches: user.id === winnerId ? 5 : 0,
+      weightedBoost: 0,
+      scoreWeight: 1,
+      matches: user.id === winnerId ? 5 : 0,
+      verificationStatus: "pending",
+      paymentStatus: "pending",
+      payout: user.id === winnerId ? prizePool : 0,
+      date,
+    }));
+
+    nextJackpotCarryOver = 0;
+    return {
+      label,
+      mode,
+      winningNumbers: [],
+      date,
+      prizePool,
+      jackpotCarryOver: nextJackpotCarryOver,
+      results: results.sort((a, b) => b.matches - a.matches || a.userName.localeCompare(b.userName)),
+    };
+  }
 
   const resultDrafts = activeUsers.map((user) => {
-    const baseMatches = user.numbers.filter((number) => winningNumbers.includes(number)).length;
-    const scoreWeight = scoreWeights[user.id] || 1;
-    const weightedBoost = mode === "weighted" && baseMatches >= 2 && scoreWeight >= 6 ? 1 : 0;
-    const matches = Math.min(5, baseMatches + weightedBoost);
+    const recentScores = state.scores
+      .filter((entry) => entry.userId === user.id)
+      .sort(sortByDateDesc)
+      .slice(0, 5);
+    const closestScore = recentScores.length
+      ? recentScores.reduce((best, entry) => {
+          if (!best) return entry;
+          const currentGap = Math.abs(entry.score - targetScore);
+          const bestGap = Math.abs(best.score - targetScore);
+          return currentGap < bestGap ? entry : best;
+        }, null)
+      : null;
+    const difference = closestScore ? Math.abs(closestScore.score - targetScore) : 99;
+    const matches = difference === 0 ? 5 : difference <= 1 ? 4 : difference <= 2 ? 3 : 0;
     return {
       id: crypto.randomUUID(),
       userId: user.id,
       userName: user.name,
-      baseMatches,
-      weightedBoost,
-      scoreWeight,
+      baseMatches: closestScore?.score ?? 0,
+      weightedBoost: 0,
+      scoreWeight: closestScore ? Math.max(1, 10 - difference) : 1,
       matches,
       verificationStatus: "pending",
       paymentStatus: "pending",
@@ -1313,27 +1468,6 @@ function buildDrawOutcome({ mode, label, winningNumbers, date }) {
     jackpotCarryOver: nextJackpotCarryOver,
     results: resultDrafts.sort((a, b) => b.matches - a.matches || a.userName.localeCompare(b.userName)),
   };
-}
-
-function buildWeightedUserPool(users, mode) {
-  if (mode === "random") {
-    return Object.fromEntries(users.map((user) => [user.id, 1]));
-  }
-
-  return Object.fromEntries(users.map((user) => {
-    const recentScores = state.scores
-      .filter((entry) => entry.userId === user.id)
-      .sort(sortByDateDesc)
-      .slice(0, 5);
-
-    const avg = recentScores.length
-      ? recentScores.reduce((sum, entry) => sum + entry.score, 0) / recentScores.length
-      : 23;
-
-    // Stableford-style higher scores get a stronger weighted draw boost.
-    const weight = Math.max(1, Math.min(10, 1 + Math.floor(avg / 5)));
-    return [user.id, weight];
-  }));
 }
 
 async function handleUserTableClick(event) {

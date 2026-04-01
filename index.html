@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=3">
+  <link rel="stylesheet" href="./styles.css?v=4">
 </head>
 <body>
   <div class="page-shell">
@@ -600,8 +600,8 @@
                 </div>
                 <div class="form-row">
                   <label>
-                    Winning numbers
-                    <input name="winningNumbers" type="text" placeholder="3,7,12,18,24" required>
+                    <span id="drawTargetLabel">Target golf score</span>
+                    <input id="drawTargetInput" name="winningNumbers" type="number" min="1" max="45" placeholder="36" required>
                   </label>
                   <label>
                     Draw date
@@ -640,82 +640,6 @@
             </article>
           </div>
 
-          <div class="workspace-grid">
-            <article class="card section-card">
-              <div class="section-heading">
-                <p class="section-tag">16 UI / UX Requirements</p>
-                <h3>Experience direction from the PRD</h3>
-              </div>
-              <div class="spec-table">
-                <div class="spec-row">
-                  <strong>Feel</strong>
-                  <span>Clean, modern, motion-enhanced, and emotionally engaging.</span>
-                </div>
-                <div class="spec-row">
-                  <strong>Avoid</strong>
-                  <span>Traditional golf-club visuals that feel old-fashioned or generic.</span>
-                </div>
-                <div class="spec-row">
-                  <strong>Homepage</strong>
-                  <span>Clear value communication, draw teaser, charity impact, and strong CTA.</span>
-                </div>
-                <div class="spec-row">
-                  <strong>Animations</strong>
-                  <span>Use subtle transitions and micro-interactions throughout.</span>
-                </div>
-                <div class="spec-row">
-                  <strong>CTA</strong>
-                  <span>Subscription flow must remain prominent and persuasive.</span>
-                </div>
-              </div>
-            </article>
-
-            <article class="card section-card">
-              <div class="section-heading">
-                <p class="section-tag">17 Technical & Delivery</p>
-                <h3>Launch constraints and platform checklist</h3>
-              </div>
-              <div class="requirements-grid">
-                <article class="summary-card">
-                  <span class="mini-pill">Technical Requirements</span>
-                  <ul class="feature-list">
-                    <li>Responsive on mobile and desktop</li>
-                    <li>Optimized for speed and low resource usage</li>
-                    <li>Secure authentication and HTTPS-ready structure</li>
-                    <li>Email notifications can be added for alerts and results</li>
-                  </ul>
-                </article>
-                <article class="summary-card">
-                  <span class="mini-pill">Scalability</span>
-                  <ul class="feature-list">
-                    <li>Support future multi-country expansion</li>
-                    <li>Extend to teams or corporate accounts</li>
-                    <li>Leave room for campaign modules</li>
-                    <li>Structure should support a future mobile app</li>
-                  </ul>
-                </article>
-                <article class="summary-card">
-                  <span class="mini-pill">Mandatory Deliverables</span>
-                  <ul class="feature-list">
-                    <li>Live website and public access flow</li>
-                    <li>User panel with signup, login, score entry, and dashboard</li>
-                    <li>Admin panel for users, charities, draws, and winners</li>
-                    <li>Supabase-backed data model and clean codebase</li>
-                  </ul>
-                </article>
-                <article class="summary-card">
-                  <span class="mini-pill">Evaluation Checklist</span>
-                  <ul class="feature-list">
-                    <li>User signup and login</li>
-                    <li>Monthly and yearly subscription flow</li>
-                    <li>Latest-5 score entry logic</li>
-                    <li>Draw system and simulation readiness</li>
-                    <li>Charity calculation and winner verification</li>
-                  </ul>
-                </article>
-              </div>
-            </article>
-          </div>
         </section>
       </section>
     </main>
@@ -724,7 +648,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./supabase-config.js?v=3"></script>
-  <script src="./app.js?v=3"></script>
+  <script src="./supabase-config.js?v=4"></script>
+  <script src="./app.js?v=4"></script>
 </body>
 </html>
