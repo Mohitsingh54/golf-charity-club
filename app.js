@@ -1,6 +1,6 @@
 const planConfig = {
-  monthly: { label: "Monthly", fee: 49, durationDays: 30 },
-  yearly: { label: "Yearly", fee: 499, durationDays: 365 },
+  monthly: { label: "Monthly", fee: 499, durationDays: 30 },
+  yearly: { label: "Yearly", fee: 4999, durationDays: 365 },
 };
 
 const prizePercentages = [
