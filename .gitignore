@@ -1,0 +1,6 @@
+.data/
+__pycache__/
+*.pyc
+.auth_secret
+golf_charity.db
+golf_charity.db-journal

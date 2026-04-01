@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Golf Charity Club</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css?v=3">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <nav class="topbar">
+        <div>
+          <p class="eyebrow">Golf Charity Subscription Platform</p>
+          <h1>Golf Charity Club</h1>
+        </div>
+        <div class="topbar-actions">
+          <button class="ghost-button" id="logoutButton" type="button">Logout</button>
+          <span class="status-pill" id="activeModeLabel">Public Visitor</span>
+        </div>
+      </nav>
+
+      <section class="hero-grid">
+        <div class="hero-copy card glass">
+          <p class="kicker">Emotion-led golf rewards platform</p>
+          <h2>Subscriptions, score tracking, charity impact, and monthly draw rewards in one experience.</h2>
+          <p>
+            This prototype translates your PRD into a responsive working product with a public landing
+            area, subscriber dashboard, and full admin control center.
+          </p>
+          <div class="hero-cta">
+            <button class="primary-button" id="becomeSubscriberButton" type="button">Register Subscriber</button>
+            <button class="secondary-button" id="switchAdminButton" type="button">Administrator</button>
+          </div>
+          <ul class="hero-points">
+            <li>Monthly and yearly subscriptions with access control</li>
+            <li>Latest 5 scores retained automatically</li>
+            <li>Weighted monthly draw with jackpot rollover</li>
+            <li>Charity contributions with visible impact</li>
+          </ul>
+        </div>
+
+        <div class="hero-side card">
+          <div class="stat-stack" id="headlineStats"></div>
+          <div class="draw-preview">
+            <div class="draw-preview-header">
+              <span>Next Draw Snapshot</span>
+              <strong id="nextDrawDate"></strong>
+            </div>
+            <div class="balls" id="latestWinningNumbers"></div>
+            <p id="jackpotSummary"></p>
+          </div>
+        </div>
+      </section>
+    </header>
+
+    <main>
+      <section class="workspace-grid auth-inline-grid" id="authSection">
+        <article class="card form-card">
+          <div class="section-heading">
+            <p class="section-tag">Subscriber Access</p>
+            <h3>Login or create subscriber account</h3>
+          </div>
+          <div class="auth-switcher">
+            <button class="auth-toggle active" data-auth-view="login" type="button">Login</button>
+            <button class="auth-toggle" data-auth-view="signup" type="button">Sign Up</button>
+          </div>
+          <div class="auth-panel active" id="loginFormPanel">
+            <form id="loginForm" class="stacked-form">
+              <label>
+                Email
+                <input name="email" type="email" placeholder="subscriber@example.com" required>
+              </label>
+              <label>
+                Password
+                <input name="password" type="password" placeholder="Enter password" required>
+              </label>
+              <button class="primary-button" type="submit">Subscriber Login</button>
+            </form>
+          </div>
+          <div class="auth-panel" id="signupFormPanel">
+            <form id="signupForm" class="stacked-form">
+              <label>
+                Name
+                <input name="name" type="text" placeholder="Aarav Sharma" required>
+              </label>
+              <label>
+                Email
+                <input name="email" type="email" placeholder="newuser@example.com" required>
+              </label>
+              <label>
+                Password
+                <input name="password" type="password" placeholder="Create password" minlength="6" required>
+              </label>
+              <button class="primary-button" type="submit">Create Subscriber Account</button>
+            </form>
+          </div>
+        </article>
+
+        <article class="card form-card">
+          <div class="section-heading">
+            <p class="section-tag">Administrator Access</p>
+            <h3>Admin login</h3>
+          </div>
+          <form id="adminLoginForm" class="stacked-form">
+            <label>
+              Admin email
+              <input name="email" type="email" placeholder="admin13@gmail.com" required>
+            </label>
+            <label>
+              Admin password
+              <input name="password" type="password" placeholder="Enter admin password" required>
+            </label>
+            <button class="secondary-button" type="submit">Administrator Login</button>
+          </form>
+          <div class="auth-hint">
+            <p>Admin account must exist in Supabase Auth and have role `admin` in `profiles`.</p>
+          </div>
+          <div class="auth-hint">
+            <p id="authMessageBox">Use the forms above to sign up or log in.</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="workspace">
+        <div class="panel-nav">
+          <button class="panel-tab active" data-panel="publicPanel" type="button">Public Visitor</button>
+          <button class="panel-tab" data-panel="subscriberPanel" type="button">Registered Subscriber</button>
+          <button class="panel-tab" data-panel="adminPanel" type="button">Administrator</button>
+        </div>
+
+        <section class="workspace-panel active" id="publicPanel">
+          <div class="workspace-grid">
+            <article class="card section-card">
+              <div class="section-heading">
+                <p class="section-tag">01 Project Overview</p>
+                <h3>Subscription-driven golf rewards with charity impact</h3>
+              </div>
+              <p>
+                The platform is a subscription-driven web application combining golf performance tracking,
+                charity fundraising, and a monthly draw-based reward engine. It is designed to feel emotionally
+                engaging and modern while avoiding the aesthetics of a traditional golf website.
+              </p>
+              <div class="role-grid">
+                <article class="summary-card">
+                  <span class="mini-pill">Users Will</span>
+                  <strong>Subscribe to the platform</strong>
+                  <p>Users can join on a monthly or yearly subscription and unlock draw participation.</p>
+                </article>
+                <article class="summary-card">
+                  <span class="mini-pill">Stableford Scores</span>
+                  <strong>Enter latest golf scores</strong>
+                  <p>Subscribers log their last 5 golf scores in Stableford format, each with a score date.</p>
+                </article>
+                <article class="summary-card">
+                  <span class="mini-pill">Charity + Rewards</span>
+                  <strong>Prize pools and charity support</strong>
+                  <p>Users participate in monthly draw-based prize pools and support a charity with part of their subscription.</p>
+                </article>
+              </div>
+            </article>
+
+            <article class="card section-card">
+              <div class="section-heading">
+                <p class="section-tag">02 Core Objectives</p>
+                <h3>What the platform is built to achieve</h3>
+              </div>
+              <div class="spec-table">
+                <div class="spec-row">
+                  <strong>Subscription Engine</strong>
+                  <span>Build a robust monthly and yearly subscription system.</span>
+                </div>
+                <div class="spec-row">
+                  <strong>Score Experience</strong>
+                  <span>Keep golf score entry simple, engaging, and easy to repeat.</span>
+                </div>
+                <div class="spec-row">
+                  <strong>Custom Draw Engine</strong>
+                  <span>Support algorithm-powered or random monthly reward draws.</span>
+                </div>
+                <div class="spec-row">
+                  <strong>Charity Integration</strong>
+                  <span>Handle seamless charity contribution selection and tracking.</span>
+                </div>
+                <div class="spec-row">
+                  <strong>Admin Control</strong>
+                  <span>Provide dashboard oversight for users, draws, winners, and charities.</span>
+                </div>
+                <div class="spec-row">
+                  <strong>Outstanding UI/UX</strong>
+                  <span>Create a modern, emotionally engaging interface beyond a typical golf site.</span>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div class="workspace-grid">
+            <article class="card section-card">
+              <div class="section-heading">
+                <p class="section-tag">03 User Roles</p>
+                <h3>Role responsibilities at a glance</h3>
+              </div>
+              <div class="role-grid roles-three">
+                <article class="summary-card">
+                  <span class="mini-pill">Public Visitor</span>
+                  <strong>Default no-login view</strong>
+                  <ul class="feature-list">
+                    <li>View platform concept</li>
+                    <li>Explore listed charities</li>
+                    <li>Understand draw mechanics</li>
+                    <li>Initiate subscription</li>
+                  </ul>
+                </article>
+                <article class="summary-card">
+                  <span class="mini-pill">Registered Subscriber</span>
+                  <strong>Member-only participation</strong>
+                  <ul class="feature-list">
+                    <li>Manage profile and settings</li>
+                    <li>Enter and edit golf scores</li>
+                    <li>Select charity recipient</li>
+                    <li>View participation and winnings</li>
+                    <li>Upload winner proof</li>
+                  </ul>
+                </article>
+                <article class="summary-card">
+                  <span class="mini-pill">Administrator</span>
+                  <strong>Full dashboard control</strong>
+                  <ul class="feature-list">
+                    <li>Manage users and subscriptions</li>
+                    <li>Configure and run draws</li>
+                    <li>Manage charity listings</li>
+                    <li>Verify winners and payouts</li>
+                    <li>Access reports and analytics</li>
+                  </ul>
+                </article>
+              </div>
+            </article>
+
+            <article class="card section-card">
+              <div class="section-heading">
+                <p class="section-tag">04 Public Journey</p>
+                <h3>Subscription plans</h3>
+              </div>
+              <div class="plans" id="planCards"></div>
+            </article>
+          </div>
+
+          <div class="workspace-grid">
+            <article class="card section-card">
+              <div class="section-heading">
+                <p class="section-tag">05 Charity Directory</p>
+                <h3>Support a cause with every payment</h3>
+              </div>
+              <div class="charity-grid" id="publicCharityGrid"></div>
+            </article>
+
+            <article class="card section-card">
+              <div class="section-heading">
+                <p class="section-tag">06 Draw Mechanics</p>
+                <h3>What a visitor can understand before subscribing</h3>
+              </div>
+              <div class="charity-grid">
+                <article class="charity-card">
+                  <h4>Platform concept</h4>
+                  <p>The platform combines golf participation, recurring subscriptions, monthly reward draws, and charity contributions in one clear member journey.</p>
+                </article>
+                <article class="charity-card">
+                  <h4>Enter golf score</h4>
+                  <p>Subscribers can submit their latest golf scores in Stableford format and keep their playing history active.</p>
+                </article>
+                <article class="charity-card">
+                  <h4>Monthly prize pools</h4>
+                  <p>Visitors can understand the draw engine, prize tiers, and how active subscribers participate in monthly reward pools.</p>
+                </article>
+                <article class="charity-card">
+                  <h4>Listed charities</h4>
+                  <p>Visitors can browse the supported charities and understand where a portion of each subscription can be directed.</p>
+                </article>
+                <article class="charity-card">
+                  <h4>Initiate subscription</h4>
+                  <p>After reviewing the concept and draw model, visitors can start the subscription process using the main call to action.</p>
+                </article>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="workspace-panel" id="subscriberPanel">
+          <div class="workspace-grid">
+            <article class="card section-card">
+              <div class="section-heading">
+                <p class="section-tag">07 Registered Subscriber</p>
+                <h3>Everything available to a subscriber</h3>
+              </div>
+              <p>
+                Registered subscribers use the platform to subscribe monthly or yearly, enter their latest golf
+                scores in Stableford format, participate in monthly draw-based prize pools, and support a charity
+                of their choice with a portion of their subscription.
+              </p>
+              <div class="role-grid">
+                <article class="summary-card">
+                  <span class="mini-pill">Subscribe</span>
+                  <strong>Monthly or yearly access</strong>
+                  <p>Choose a plan, activate subscription access, and stay eligible for platform features and draw participation.</p>
+                </article>
+                <article class="summary-card">
+                  <span class="mini-pill">Enter Golf Score</span>
+                  <strong>Stableford score entry</strong>
+                  <p>Record the last 5 golf scores in Stableford format, with each entry including a date.</p>
+                </article>
+                <article class="summary-card">
+                  <span class="mini-pill">Prize Pools</span>
+                  <strong>Participate in monthly draws</strong>
+                  <p>Subscribers are included in monthly draw-based prize pools and can track participation and winnings.</p>
+                </article>
+                <article class="summary-card">
+                  <span class="mini-pill">Charity</span>
+                  <strong>Support a chosen cause</strong>
+                  <p>Select a charity recipient and direct a portion of each subscription toward meaningful impact.</p>
+                </article>
+              </div>
+            </article>
+
+            <article class="card section-card">
+              <div class="section-heading">
+                <p class="section-tag">08 Subscription & Payment System</p>
+                <h3>Commercial and access logic</h3>
+              </div>
+              <div class="spec-table">
+                <div class="spec-row">
+                  <strong>Plans</strong>
+                  <span>Monthly plan and yearly plan with discounted annual rate.</span>
+                </div>
+                <div class="spec-row">
+                  <strong>Gateway</strong>
+                  <span>Stripe or equivalent PCI-compliant payment provider.</span>
+                </div>
+                <div class="spec-row">
+                  <strong>Access Control</strong>
+                  <span>Non-subscribers have restricted access to subscriber-only features.</span>
+                </div>
+                <div class="spec-row">
+                  <strong>Lifecycle</strong>
+                  <span>Handles renewals, cancellations, and lapsed subscription states.</span>
+                </div>
+                <div class="spec-row">
+                  <strong>Validation</strong>
+                  <span>Real-time subscription checks on each authenticated request.</span>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div class="workspace-grid">
+            <article class="card section-card">
+              <div class="section-heading">
+                <p class="section-tag">09 Score Management System</p>
+                <h3>Input requirements and behavior</h3>
+              </div>
+              <div class="requirements-grid">
+                <article class="summary-card">
+                  <span class="mini-pill">Input Requirements</span>
+                  <ul class="feature-list">
+                    <li>Users retain the last 5 golf scores</li>
+                    <li>Score range stays between 1 and 45</li>
+                    <li>Each score must include a date</li>
+                  </ul>
+                </article>
+                <article class="summary-card">
+                  <span class="mini-pill">Functional Behavior</span>
+                  <ul class="feature-list">
+                    <li>Only the last 5 scores are retained at any time</li>
+                    <li>A new score replaces the oldest stored score automatically</li>
+                    <li>Scores display in reverse chronological order</li>
+                  </ul>
+                </article>
+              </div>
+            </article>
+
+            <article class="card section-card">
+              <div class="section-heading">
+                <p class="section-tag">10 Prize Pool Logic</p>
+                <h3>Draw and reward system</h3>
+              </div>
+              <div class="spec-table">
+                <div class="spec-row">
+                  <strong>5 Number Match</strong>
+                  <span>40% of pool, full jackpot tier with rollover when unclaimed.</span>
+                </div>
+                <div class="spec-row">
+                  <strong>4 Number Match</strong>
+                  <span>35% of pool, shared equally across verified winners.</span>
+                </div>
+                <div class="spec-row">
+                  <strong>3 Number Match</strong>
+                  <span>25% of pool, shared equally across verified winners.</span>
+                </div>
+                <div class="spec-row">
+                  <strong>Operational Notes</strong>
+                  <span>Monthly cadence, admin publishing, optional simulations, and weighted or random logic.</span>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div class="workspace-grid">
+            <article class="card section-card">
+              <div class="section-heading">
+                <p class="section-tag">11 Charity System</p>
+                <h3>Contribution model and directory features</h3>
+              </div>
+              <div class="requirements-grid">
+                <article class="summary-card">
+                  <span class="mini-pill">Contribution Model</span>
+                  <ul class="feature-list">
+                    <li>Users select a charity at signup</li>
+                    <li>Minimum contribution is 10% of subscription fee</li>
+                    <li>Users may increase their contribution percentage</li>
+                    <li>Independent donation option can be added later</li>
+                  </ul>
+                </article>
+                <article class="summary-card">
+                  <span class="mini-pill">Directory Features</span>
+                  <ul class="feature-list">
+                    <li>Charity listing page with search and filter</li>
+                    <li>Individual charity profiles with description and imagery</li>
+                    <li>Homepage spotlight for impact storytelling</li>
+                  </ul>
+                </article>
+              </div>
+            </article>
+
+            <article class="card form-card">
+              <div class="section-heading">
+                <p class="section-tag">12 Onboarding</p>
+                <h3>Register or renew a subscriber</h3>
+              </div>
+              <form id="subscriptionForm" class="stacked-form">
+                <label>
+                  Full name
+                  <input name="name" type="text" placeholder="Aarav Sharma" required>
+                </label>
+                <label>
+                  Email
+                  <input name="email" type="email" placeholder="aarav@example.com" required>
+                </label>
+                <label>
+                  Golf club
+                  <input name="club" type="text" placeholder="Bangalore Greens" required>
+                </label>
+                <div class="form-row">
+                  <label>
+                    Plan
+                    <select name="plan" required>
+                      <option value="monthly">Monthly</option>
+                      <option value="yearly">Yearly</option>
+                    </select>
+                  </label>
+                  <label>
+                    Charity
+                    <select name="charityId" id="subscriptionCharitySelect" required></select>
+                  </label>
+                </div>
+                <div class="form-row">
+                  <label>
+                    Contribution %
+                    <input name="contributionPercent" type="number" min="10" max="50" value="10" required>
+                  </label>
+                </div>
+                <button class="primary-button" type="submit">Activate Subscription</button>
+              </form>
+            </article>
+
+            <article class="card form-card">
+              <div class="section-heading">
+                <p class="section-tag">13 Score Management</p>
+                <h3>Golf score</h3>
+              </div>
+              <form id="scoreForm" class="stacked-form">
+                <label>
+                  Subscriber
+                  <select name="userId" id="scoreUserSelect" required></select>
+                </label>
+                <div class="form-row">
+                  <label>
+                    Score
+                    <input name="score" type="number" min="1" max="45" placeholder="36" required>
+                  </label>
+                  <label>
+                    Date
+                    <input name="date" type="date" required>
+                  </label>
+                </div>
+                <label>
+                  5 round score
+                  <textarea name="proof" rows="3" placeholder="Enter the user's 5-round score details" required></textarea>
+                </label>
+                <button class="primary-button" type="submit">Save Score</button>
+              </form>
+            </article>
+          </div>
+
+          <div class="workspace-grid">
+            <article class="card dashboard-card">
+              <div class="section-heading">
+                <p class="section-tag">14 Subscriber Dashboard</p>
+                <h3>Live user overview</h3>
+              </div>
+              <label class="dashboard-selector">
+                Viewing subscriber
+                <select id="dashboardUserSelect"></select>
+              </label>
+              <div id="subscriberSummary" class="summary-grid"></div>
+              <div class="dashboard-columns">
+                <div>
+                  <h4>Recent scores</h4>
+                  <div id="recentScores"></div>
+                </div>
+                <div>
+                  <h4>Draw history</h4>
+                  <div id="userDrawHistory"></div>
+                </div>
+              </div>
+            </article>
+
+            <article class="card dashboard-card">
+              <div class="section-heading">
+                <p class="section-tag">15 Community Impact</p>
+                <h3>Charity activity and prize pool</h3>
+              </div>
+              <div id="charityHighlights" class="charity-highlights"></div>
+              <div id="prizeBreakdown" class="prize-breakdown"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="workspace-panel" id="adminPanel">
+          <div class="workspace-grid">
+            <article class="card section-card">
+              <div class="section-heading">
+                <p class="section-tag">11 Admin Dashboard</p>
+                <h3>Administrative responsibilities</h3>
+              </div>
+              <div class="requirements-grid">
+                <article class="summary-card">
+                  <span class="mini-pill">User Management</span>
+                  <ul class="feature-list">
+                    <li>View and edit user profiles</li>
+                    <li>Edit golf scores</li>
+                    <li>Manage subscriptions</li>
+                  </ul>
+                </article>
+                <article class="summary-card">
+                  <span class="mini-pill">Draw Management</span>
+                  <ul class="feature-list">
+                    <li>Configure draw logic</li>
+                    <li>Run simulations</li>
+                    <li>Publish results</li>
+                  </ul>
+                </article>
+                <article class="summary-card">
+                  <span class="mini-pill">Charity Management</span>
+                  <ul class="feature-list">
+                    <li>Add, edit, and delete charities</li>
+                    <li>Manage charity content and media</li>
+                  </ul>
+                </article>
+                <article class="summary-card">
+                  <span class="mini-pill">Winner Management</span>
+                  <ul class="feature-list">
+                    <li>View winners list</li>
+                    <li>Verify submissions</li>
+                    <li>Mark payouts as completed</li>
+                  </ul>
+                </article>
+              </div>
+            </article>
+
+            <article class="card dashboard-card">
+              <div class="section-heading">
+                <p class="section-tag">12 Draw Control</p>
+                <h3>Configure and publish monthly draws</h3>
+              </div>
+              <form id="drawForm" class="stacked-form">
+                <div class="form-row">
+                  <label>
+                    Draw mode
+                    <select name="mode">
+                      <option value="weighted">Weighted by recent scores</option>
+                      <option value="random">Random draw</option>
+                    </select>
+                  </label>
+                  <label>
+                    Draw label
+                    <input name="label" type="text" placeholder="April 2026 draw" required>
+                  </label>
+                </div>
+                <div class="form-row">
+                  <label>
+                    Winning numbers
+                    <input name="winningNumbers" type="text" placeholder="3,7,12,18,24" required>
+                  </label>
+                  <label>
+                    Draw date
+                    <input name="date" type="date" required>
+                  </label>
+                </div>
+                <button class="primary-button" type="submit">Run Draw & Publish Results</button>
+              </form>
+              <div id="drawResults" class="result-board"></div>
+            </article>
+
+            <article class="card dashboard-card">
+              <div class="section-heading">
+                <p class="section-tag">13 Winner Verification</p>
+                <h3>Review winners and payment state</h3>
+              </div>
+              <div id="winnerTable"></div>
+            </article>
+          </div>
+
+          <div class="workspace-grid">
+            <article class="card dashboard-card">
+              <div class="section-heading">
+                <p class="section-tag">14 User Management</p>
+                <h3>Subscriptions and access control</h3>
+              </div>
+              <div id="userTable"></div>
+            </article>
+
+            <article class="card dashboard-card">
+              <div class="section-heading">
+                <p class="section-tag">15 Analytics</p>
+                <h3>Usage, revenue, charity, and draw insights</h3>
+              </div>
+              <div id="analyticsCards" class="analytics-grid"></div>
+            </article>
+          </div>
+
+          <div class="workspace-grid">
+            <article class="card section-card">
+              <div class="section-heading">
+                <p class="section-tag">16 UI / UX Requirements</p>
+                <h3>Experience direction from the PRD</h3>
+              </div>
+              <div class="spec-table">
+                <div class="spec-row">
+                  <strong>Feel</strong>
+                  <span>Clean, modern, motion-enhanced, and emotionally engaging.</span>
+                </div>
+                <div class="spec-row">
+                  <strong>Avoid</strong>
+                  <span>Traditional golf-club visuals that feel old-fashioned or generic.</span>
+                </div>
+                <div class="spec-row">
+                  <strong>Homepage</strong>
+                  <span>Clear value communication, draw teaser, charity impact, and strong CTA.</span>
+                </div>
+                <div class="spec-row">
+                  <strong>Animations</strong>
+                  <span>Use subtle transitions and micro-interactions throughout.</span>
+                </div>
+                <div class="spec-row">
+                  <strong>CTA</strong>
+                  <span>Subscription flow must remain prominent and persuasive.</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="card section-card">
+              <div class="section-heading">
+                <p class="section-tag">17 Technical & Delivery</p>
+                <h3>Launch constraints and platform checklist</h3>
+              </div>
+              <div class="requirements-grid">
+                <article class="summary-card">
+                  <span class="mini-pill">Technical Requirements</span>
+                  <ul class="feature-list">
+                    <li>Responsive on mobile and desktop</li>
+                    <li>Optimized for speed and low resource usage</li>
+                    <li>Secure authentication and HTTPS-ready structure</li>
+                    <li>Email notifications can be added for alerts and results</li>
+                  </ul>
+                </article>
+                <article class="summary-card">
+                  <span class="mini-pill">Scalability</span>
+                  <ul class="feature-list">
+                    <li>Support future multi-country expansion</li>
+                    <li>Extend to teams or corporate accounts</li>
+                    <li>Leave room for campaign modules</li>
+                    <li>Structure should support a future mobile app</li>
+                  </ul>
+                </article>
+                <article class="summary-card">
+                  <span class="mini-pill">Mandatory Deliverables</span>
+                  <ul class="feature-list">
+                    <li>Live website and public access flow</li>
+                    <li>User panel with signup, login, score entry, and dashboard</li>
+                    <li>Admin panel for users, charities, draws, and winners</li>
+                    <li>Supabase-backed data model and clean codebase</li>
+                  </ul>
+                </article>
+                <article class="summary-card">
+                  <span class="mini-pill">Evaluation Checklist</span>
+                  <ul class="feature-list">
+                    <li>User signup and login</li>
+                    <li>Monthly and yearly subscription flow</li>
+                    <li>Latest-5 score entry logic</li>
+                    <li>Draw system and simulation readiness</li>
+                    <li>Charity calculation and winner verification</li>
+                  </ul>
+                </article>
+              </div>
+            </article>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-config.js?v=3"></script>
+  <script src="./app.js?v=3"></script>
+</body>
+</html>
