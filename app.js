@@ -37,6 +37,8 @@ const els = {
   authEntryActions: document.getElementById("authEntryActions"),
   openSubscriberAuthButton: document.getElementById("openSubscriberAuthButton"),
   openAdminAuthButton: document.getElementById("openAdminAuthButton"),
+  backToAccessButtonsFromUser: document.getElementById("backToAccessButtonsFromUser"),
+  backToAccessButtonsFromAdmin: document.getElementById("backToAccessButtonsFromAdmin"),
   subscriberAuthFlow: document.getElementById("subscriberAuthFlow"),
   adminAuthFlow: document.getElementById("adminAuthFlow"),
   authToggles: [...document.querySelectorAll(".auth-toggle")],
@@ -99,6 +101,8 @@ function bindEvents() {
   els.adminLoginForm?.addEventListener("submit", handleAdminLoginSubmit);
   els.openSubscriberAuthButton?.addEventListener("click", () => openAuthFlow("subscriber"));
   els.openAdminAuthButton?.addEventListener("click", () => openAuthFlow("admin"));
+  els.backToAccessButtonsFromUser?.addEventListener("click", closeAuthFlow);
+  els.backToAccessButtonsFromAdmin?.addEventListener("click", closeAuthFlow);
   els.authToggles.forEach((toggle) => {
     toggle.addEventListener("click", () => setAuthView(toggle.dataset.authView));
   });
@@ -320,6 +324,11 @@ function openAuthFlow(flow, authView = "login") {
   if (flow === "subscriber") {
     setAuthView(authView);
   }
+  renderAuthState();
+}
+
+function closeAuthFlow() {
+  state.authFlow = null;
   renderAuthState();
 }
 

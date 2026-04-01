@@ -62,13 +62,33 @@
         <article class="card form-card">
           <div class="section-heading">
             <p class="section-tag">Access Portal</p>
-            <h3>Choose how you want to enter</h3>
+            <h3>Choose how you want to enter the platform</h3>
+            <p class="auth-intro">Start with the path that matches your role. Subscribers can log in or create a new account, while administrators can enter through the dedicated admin login.</p>
+          </div>
+          <div class="auth-role-notes">
+            <article class="summary-card compact-card">
+              <span class="mini-pill">User Access</span>
+              <strong>Login or Sign Up</strong>
+              <p>Create a subscriber account, manage your subscription, enter golf scores, and track draw participation.</p>
+            </article>
+            <article class="summary-card compact-card">
+              <span class="mini-pill">Admin Access</span>
+              <strong>Secure Admin Entry</strong>
+              <p>Log in as administrator to manage users, run draws, verify winners, and review platform activity.</p>
+            </article>
           </div>
           <div class="auth-entry-actions" id="authEntryActions">
             <button class="primary-button" id="openSubscriberAuthButton" type="button">User Login / Signup</button>
             <button class="secondary-button" id="openAdminAuthButton" type="button">Admin Login</button>
           </div>
           <div class="auth-flow hidden" id="subscriberAuthFlow">
+            <div class="auth-flow-head">
+              <div>
+                <p class="section-tag">User Access</p>
+                <h4>Subscriber account access</h4>
+              </div>
+              <button class="ghost-button" id="backToAccessButtonsFromUser" type="button">Back</button>
+            </div>
             <div class="auth-switcher">
               <button class="auth-toggle active" data-auth-view="login" type="button">Login</button>
               <button class="auth-toggle" data-auth-view="signup" type="button">Sign Up</button>
@@ -110,6 +130,14 @@
           <div class="section-heading">
             <p class="section-tag">Administrator Access</p>
             <h3>Admin login</h3>
+            <p class="auth-intro">Use the administrator login to access draw controls, winner verification, and platform management tools.</p>
+          </div>
+          <div class="auth-flow-head">
+            <div>
+              <p class="section-tag">Admin Access</p>
+              <h4>Administrator login</h4>
+            </div>
+            <button class="ghost-button" id="backToAccessButtonsFromAdmin" type="button">Back</button>
           </div>
           <form id="adminLoginForm" class="stacked-form">
             <label>

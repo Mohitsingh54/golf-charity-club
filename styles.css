@@ -62,9 +62,64 @@ body {
   gap: 18px;
 }
 
+.auth-inline-grid {
+  align-items: start;
+}
+
+.auth-intro {
+  max-width: 62ch;
+  margin-top: 10px;
+}
+
+.auth-role-notes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.compact-card {
+  padding: 16px 18px;
+}
+
+.compact-card strong {
+  display: block;
+  margin: 6px 0 4px;
+}
+
+.compact-card p {
+  margin: 0;
+}
+
 .auth-entry-actions.hidden,
 .auth-flow.hidden {
   display: none;
+}
+
+.auth-entry-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.auth-entry-actions .primary-button,
+.auth-entry-actions .secondary-button {
+  min-height: 56px;
+  justify-content: center;
+}
+
+.auth-flow {
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+}
+
+.auth-flow-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.auth-flow-head h4 {
+  margin-top: 4px;
 }
 
 .auth-shell {
@@ -592,6 +647,8 @@ textarea:focus {
   .workspace-grid,
   .role-grid,
   .roles-three,
+  .auth-role-notes,
+  .auth-entry-actions,
   .dashboard-columns,
   .summary-grid,
   .analytics-grid,
