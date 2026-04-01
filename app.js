@@ -34,6 +34,11 @@ let state = createInitialState();
 let supabaseClient = null;
 const els = {
   authSection: document.getElementById("authSection"),
+  authEntryActions: document.getElementById("authEntryActions"),
+  openSubscriberAuthButton: document.getElementById("openSubscriberAuthButton"),
+  openAdminAuthButton: document.getElementById("openAdminAuthButton"),
+  subscriberAuthFlow: document.getElementById("subscriberAuthFlow"),
+  adminAuthFlow: document.getElementById("adminAuthFlow"),
   authToggles: [...document.querySelectorAll(".auth-toggle")],
   authPanels: [...document.querySelectorAll(".auth-panel")],
   loginForm: document.getElementById("loginForm"),
@@ -92,16 +97,19 @@ function bindEvents() {
   els.loginForm?.addEventListener("submit", handleLoginSubmit);
   els.signupForm?.addEventListener("submit", handleSignupSubmit);
   els.adminLoginForm?.addEventListener("submit", handleAdminLoginSubmit);
+  els.openSubscriberAuthButton?.addEventListener("click", () => openAuthFlow("subscriber"));
+  els.openAdminAuthButton?.addEventListener("click", () => openAuthFlow("admin"));
   els.authToggles.forEach((toggle) => {
     toggle.addEventListener("click", () => setAuthView(toggle.dataset.authView));
   });
   els.logoutButton?.addEventListener("click", handleLogout);
 
   els.becomeSubscriberButton?.addEventListener("click", () => {
-    setAuthView("signup");
+    openAuthFlow("subscriber", "signup");
     document.getElementById("signupFormPanel")?.scrollIntoView({ behavior: "smooth", block: "center" });
   });
   els.switchAdminButton?.addEventListener("click", () => {
+    openAuthFlow("admin");
     els.adminLoginForm?.scrollIntoView({ behavior: "smooth", block: "center" });
   });
 
@@ -141,6 +149,7 @@ function createInitialState() {
     session: null,
     authGateDismissed: false,
     hideSignup: false,
+    authFlow: null,
     jackpotCarryOver: 0,
     metrics: {
       totalSubscribers: 0,
@@ -217,6 +226,13 @@ function renderAuthState() {
   if (state.hideSignup) {
     setAuthView("login");
   }
+
+  if (!state.session && els.authEntryActions && els.subscriberAuthFlow && els.adminAuthFlow) {
+    const activeFlow = state.authFlow || null;
+    els.authEntryActions.classList.toggle("hidden", Boolean(activeFlow));
+    els.subscriberAuthFlow.classList.toggle("hidden", activeFlow !== "subscriber");
+    els.adminAuthFlow.classList.toggle("hidden", activeFlow !== "admin");
+  }
 }
 
 function initializeSupabase() {
@@ -271,15 +287,16 @@ async function syncSupabaseSession(user) {
   }
 
   const role = profile?.role === "admin" ? "admin" : "subscriber";
-  state.session = {
-    role,
-    email: profile?.email || user.email,
+    state.session = {
+      role,
+      email: profile?.email || user.email,
     name: profile?.full_name || user.user_metadata?.name || user.email,
     isEmailVerified: Boolean(user.email_confirmed_at),
     userId: user.id,
-  };
-  state.currentMode = role === "admin" ? "admin" : "subscriber";
-  state.authGateDismissed = true;
+    };
+    state.currentMode = role === "admin" ? "admin" : "subscriber";
+    state.authGateDismissed = true;
+    state.authFlow = null;
 }
 
 function updateAuthMessage(message) {
@@ -296,6 +313,14 @@ function setAuthView(view) {
     const panelView = panel.id === "signupFormPanel" ? "signup" : "login";
     panel.classList.toggle("active", panelView === resolvedView);
   });
+}
+
+function openAuthFlow(flow, authView = "login") {
+  state.authFlow = flow;
+  if (flow === "subscriber") {
+    setAuthView(authView);
+  }
+  renderAuthState();
 }
 
 async function loadAppData() {
@@ -1056,6 +1081,7 @@ async function handleSignupSubmit(event) {
     }
 
     state.hideSignup = true;
+    state.authFlow = null;
     saveState();
     render();
     const linkedUser = hasSession ? state.users.find((user) => user.email === email) : null;
@@ -1121,6 +1147,7 @@ async function handleLogout() {
   state.session = null;
   state.authGateDismissed = false;
   state.hideSignup = false;
+  state.authFlow = null;
   await loadAppData();
   saveState();
   state.currentMode = "public";

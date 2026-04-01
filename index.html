@@ -61,13 +61,18 @@
       <section class="workspace-grid auth-inline-grid" id="authSection">
         <article class="card form-card">
           <div class="section-heading">
-            <p class="section-tag">Subscriber Access</p>
-            <h3>Login or create subscriber account</h3>
+            <p class="section-tag">Access Portal</p>
+            <h3>Choose how you want to enter</h3>
           </div>
-          <div class="auth-switcher">
-            <button class="auth-toggle active" data-auth-view="login" type="button">Login</button>
-            <button class="auth-toggle" data-auth-view="signup" type="button">Sign Up</button>
+          <div class="auth-entry-actions" id="authEntryActions">
+            <button class="primary-button" id="openSubscriberAuthButton" type="button">Login / Signup</button>
+            <button class="secondary-button" id="openAdminAuthButton" type="button">Admin Login</button>
           </div>
+          <div class="auth-flow hidden" id="subscriberAuthFlow">
+            <div class="auth-switcher">
+              <button class="auth-toggle active" data-auth-view="login" type="button">Login</button>
+              <button class="auth-toggle" data-auth-view="signup" type="button">Sign Up</button>
+            </div>
           <div class="auth-panel active" id="loginFormPanel">
             <form id="loginForm" class="stacked-form">
               <label>
@@ -98,9 +103,10 @@
               <button class="primary-button" type="submit">Create Subscriber Account</button>
             </form>
           </div>
+          </div>
         </article>
 
-        <article class="card form-card">
+        <article class="card form-card auth-flow hidden" id="adminAuthFlow">
           <div class="section-heading">
             <p class="section-tag">Administrator Access</p>
             <h3>Admin login</h3>

@@ -56,6 +56,17 @@ body {
   gap: 18px;
 }
 
+.auth-entry-actions,
+.auth-flow {
+  display: grid;
+  gap: 18px;
+}
+
+.auth-entry-actions.hidden,
+.auth-flow.hidden {
+  display: none;
+}
+
 .auth-shell {
   width: min(760px, 100%);
 }
